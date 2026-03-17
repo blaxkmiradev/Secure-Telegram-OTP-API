@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Auth | Rikixz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --p: #3b82f6; --bg: #020617; --card: #0f172a; }
+        body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: #f8fafc; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .card { background: var(--card); border: 1px solid #1e293b; padding: 40px; border-radius: 24px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+        h2 { margin: 0 0 10px; font-size: 1.5rem; }
+        p { color: #64748b; font-size: 0.85rem; margin-bottom: 25px; }
+        input { width: 100%; padding: 12px; background: #020617; border: 1px solid #334155; border-radius: 10px; color: #fff; margin-bottom: 15px; box-sizing: border-box; text-align: center; transition: 0.3s; }
+        input:focus { outline: none; border-color: var(--p); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+        button { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-req { background: var(--p); color: white; }
+        .btn-ver { background: #10b981; color: white; margin-top: 10px; }
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
+        .status { margin-top: 20px; font-size: 0.8rem; font-weight: 500; }
+        .credit { margin-top: 25px; font-size: 0.7rem; color: #475569; }
+        .credit a { color: var(--p); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Identity Portal</h2>
+        <p>A secure 2FA gateway via Telegram</p>
+        <input type="text" id="uid" placeholder="Username / ID">
+        <button id="req" class="btn-req" onclick="send()">Get Access Code</button>
+        <div style="margin: 20px 0; border-top: 1px solid #1e293b;"></div>
+        <input type="text" id="otp" placeholder="· · · · · ·" maxlength="6">
+        <button id="ver" class="btn-ver" onclick="verify()">Verify Login</button>
+        <div id="msg" class="status"></div>
+        <div class="credit">System by <a href="https://t.me/yunaonthetp">Rikixz</a></div>
+    </div>
+
+    <script>
+        const API = "http://127.0.0.1:5000";
+        const msg = (t, c) => { const e=document.getElementById('msg'); e.innerText=t; e.style.color=c; };
+
+        async function send() {
+            const user_id = document.getElementById('uid').value;
+            try {
+                const r = await fetch(`${API}/request-otp`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id })
+                });
+                const d = await r.json();
+                msg(d.msg, r.ok ? "#4ade80" : "#f87171");
+            } catch { msg("Server Offline", "#f87171"); }
+        }
+
+        async function verify() {
+            const user_id = document.getElementById('uid').value;
+            const otp = document.getElementById('otp').value;
+            try {
+                const r = await fetch(`${API}/verify-otp`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_id, otp })
+                });
+                const d = await r.json();
+                msg(d.msg, r.ok ? "#4ade80" : "#f87171");
+            } catch { msg("Server Offline", "#f87171"); }
+        }
+    </script>
+</body>
+</html>
